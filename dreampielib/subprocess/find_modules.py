@@ -19,15 +19,20 @@ import sys
 import os
 from os.path import join, isdir, isfile, exists
 import stat
-import imp
 import re
 import time
+try:
+    import imp
+    suffixes_list = [s for s, _, _ in imp.get_suffixes()]
+except ModuleNotFoundError:
+    from importlib import machinery
+    suffixes_list = machinery.EXTENSION_SUFFIXES + machinery.SOURCE_SUFFIXES + machinery.BYTECODE_SUFFIXES
 
 TIMEOUT = 1 # Stop after 1 second
 
 # Match any of the suffixes
 suffix_re = re.compile(
-    r'(?:%s)$' % '|'.join(re.escape(suffix[0]) for suffix in imp.get_suffixes()))
+    r'(?:%s)$' % '|'.join(re.escape(s) for s in suffixes_list))
 
 # A mapping from absolute names to (mtime, module_names) tuple.
 cache = {}
